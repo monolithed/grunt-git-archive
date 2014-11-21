@@ -10,7 +10,7 @@
 var util = require('util'),
 	child_process = require('child_process');
 
-var async = require('async');
+var Promise = require('es6-promises');
 
 
 module.exports = function (grunt) {
@@ -46,10 +46,10 @@ module.exports = function (grunt) {
 						case 'prefix':
 						case 'remote':
 							if (option === 'output' && helpers) {
-								value = value(helpers);
+								value = value.call(options, helpers);
 							}
 
-							value = util.format('--%s="%s"', option, value);
+							value = util.format('--%s="%s"', option, this.name = value);
 							data.push(value);
 
 							break;
@@ -73,59 +73,70 @@ module.exports = function (grunt) {
 				return data.join(' ');
 			},
 
+			helpers: function (callback) {
+				var list = [];
+
+				for (var name in options.helpers) {
+					var helper = new Promise(function (resolve) {
+						var value = options.helpers[name];
+
+						child_process.exec(value, function (name, error, stdout) {
+							if (error) {
+								grunt.fail.fatal(error);
+							}
+
+							resolve({
+								name : name,
+								value: stdout.trim()
+							});
+						}
+						.bind(null, name));
+					});
+
+					list.push(helper);
+				}
+
+				return list;
+			},
+
 			exec: function (helpers) {
 				var command = this.command(helpers);
 
 				child_process.exec(command, function (error, stdout, stderr) {
 					if (options.verbose) {
-						if (error) {
-							grunt.log.writeln(stdout);
-						}
-						else {
-							grunt.log.error(stderr);
-						}
+						grunt.log.writeln(stderr);
+					}
+
+					if (options.complete) {
+						options.complete.call(options, this.name);
 					}
 
 					grunt.log.ok(command);
 
-					if (options.process) {
-						options.process.apply(arguments);
-					}
-
 					if (error) {
 						grunt.fail.fatal(error);
 					}
 
-					grunt.log.ok('Creating an archive completed');
+					var message = util.format('Creating the archive "%s" completed', this.name);
+					grunt.log.ok(message);
 
 					resolve();
-				});
+				}
+				.bind(this));
 			}
 		};
 
 		if (typeof options.output == 'function' && options.helpers) {
-			var helpers = Object.keys(options.helpers);
+			var helpers = archive.helpers();
 
-			async.each(helpers, function (command, resolve) {
-				child_process.exec(options.helpers[command], function (error, stdout) {
-					if (error) {
-						grunt.fail.fatal(error);
-					}
-					else {
-						stdout = stdout.trim();
-						helpers[command] = stdout.split('\n');
-					}
+			Promise.all(helpers).then(function (helpers) {
+				var result = {};
 
-					resolve();
+				helpers.forEach(function (helper) {
+					result[helper.name] = helper.value;
 				});
-			},
-			function (error) {
-				if (error) {
-					grunt.fail.fatal(error);
-				}
-				else {
-					archive.exec(helpers);
-				}
+
+				archive.exec(result);
 			});
 		}
 		else {
