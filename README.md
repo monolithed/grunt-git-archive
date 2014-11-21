@@ -259,9 +259,9 @@ A complete list of commit-ish and tree-ish identifiers
 | 16. :<n>:<path>           | :0:README, :README                       |
 
 
-Identifiers #1-14 are all "commit-ish", because they all lead to commits, but because commits also point to directory trees, they all ultimately lead to (sub)directory tree objects, and can therefore also be used as "tree-ish".
+Identifiers `#1-14` are all "commit-ish", because they all lead to commits, but because commits also point to directory trees, they all ultimately lead to (sub)directory tree objects, and can therefore also be used as "tree-ish".
 
-#15 can also be used as tree-ish when it refers to a (sub)directory, but it can also be used to identify specific files. When it refers to files, I'm not sure if it's still considered "tree-ish", or if acts more like "blob-ish" (Git refers to files as "blobs").
+`#15` can also be used as tree-ish when it refers to a (sub)directory, but it can also be used to identify specific files. When it refers to files, I'm not sure if it's still considered "tree-ish", or if acts more like "blob-ish" (Git refers to files as "blobs").
 
 For more info see [specifying revisions](https://www.kernel.org/pub/software/scm/git/docs/gitrevisions.html#_specifying_revisions)
 
