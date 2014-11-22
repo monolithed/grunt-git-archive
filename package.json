@@ -1,6 +1,6 @@
 {
 	"name"   : "grunt-git-archive",
-	"version": "0.0.2",
+	"version": "0.0.3",
 	"author" : "Abashkin Alexander <monolithed@gmail.com>",
 	"homepage": "https://github.com/monolithed/grunt-git-archive.git",
 
@@ -23,7 +23,9 @@
 		"url": "https://github.com/monolithed/grunt-git-archive/issues"
 	},
 
-	"dependencies": "1.0.8",
+	"dependencies": {
+		"es6-promises": "1.0.8"
+	},
 
 	"devDependencies": {
 		"grunt": "0.4.5"
