@@ -8,7 +8,7 @@
 'use strict';
 
 var util = require('util'),
-	child_process = require('child_process');
+	exec = require('child_process').exec;
 
 var Promise = require('es6-promises');
 
@@ -73,14 +73,14 @@ module.exports = function (grunt) {
 				return data.join(' ');
 			},
 
-			helpers: function (callback) {
+			helpers: function () {
 				var list = [];
 
 				for (var name in options.helpers) {
 					var helper = new Promise(function (resolve) {
 						var value = options.helpers[name];
 
-						child_process.exec(value, function (name, error, stdout) {
+						exec(value, function (name, error, stdout) {
 							if (error) {
 								grunt.fail.fatal(error);
 							}
@@ -99,10 +99,10 @@ module.exports = function (grunt) {
 				return list;
 			},
 
-			exec: function (helpers) {
+			execute: function (helpers) {
 				var command = this.command(helpers);
 
-				child_process.exec(command, function (error, stdout, stderr) {
+				exec(command, function (error, stdout, stderr) {
 					if (options.verbose) {
 						grunt.log.writeln(stderr);
 					}
@@ -136,11 +136,11 @@ module.exports = function (grunt) {
 					result[helper.name] = helper.value;
 				});
 
-				archive.exec(result);
+				archive.execute(result);
 			});
 		}
 		else {
-			archive.exec();
+			archive.execute();
 		}
 	});
 };
